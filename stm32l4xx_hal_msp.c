@@ -109,31 +109,7 @@ void HAL_PPP_MspDeInit(void)
    */
 }
 
-/**
-  * @brief TIM MSP Initialization 
-  *        This function configures the hardware resources used in this example: 
-  *           - Peripheral's clock enable
-  *           - Peripheral's GPIO Configuration  
-  * @param htim: TIM handle pointer
-  * @retval None
-  */
 
-/*
-void HAL_TIM_Base_MspInit (TIM_HandleTypeDef *htim)
-{
-  //Enable peripherals and GPIO Clocks 
- 
-__HAL_RCC_TIM3_CLK_ENABLE(); //this is defined in stm32f4xx_hal_rcc.h
-	
-	
-  //Configure the NVIC for TIMx 
-	HAL_NVIC_SetPriority(TIM3_IRQn, 0, 2);
-  
-  // Enable the TIM global Interrupt 
-	HAL_NVIC_EnableIRQ(TIM3_IRQn);
-}
-
-*/
 
 void HAL_TIM_OC_MspInit(TIM_HandleTypeDef *htim)
 { 
@@ -162,9 +138,8 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   // Common configuration for all channels 
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH; //???? 50MHz, 25Mhz...don't know what is the critics to select pin speed.
-  GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;  //as for which AF, see table "alternate function mapping" in datasheet
-																					    //P74,  table 16. 
+  GPIO_InitStruct.Speed = GPIO_SPEED_HIGH; 
+  GPIO_InitStruct.Alternate = GPIO_AF2_TIM4;   
   // Channel 2 output 
   GPIO_InitStruct.Pin = GPIO_PIN_6;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -223,9 +198,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
  
   HAL_DMA_DeInit(&hdma_adc);
 	HAL_DMA_Init(&hdma_adc);
-  
-	//hdma_adc.XferCpltCallback=&hdmaXferCpltCallback;
-	//HAL_DMA_RegisterCallback(&hdma_adc, HAL_DMA_XFER_CPLT_CB_ID, hdmaXferCpltCallback); //was not able to init callback function field.
+
 
   __HAL_LINKDMA(hadc, DMA_Handle, hdma_adc);
 
@@ -258,12 +231,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
   /* De-initialize the ADC3 Channel8 GPIO pin */
   HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
   
-  /*##-3- Disable the DMA Streams ############################################*/
-  /* De-Initialize the DMA Stream associate to transmission process */
-//  HAL_DMA_DeInit(&hdma_adc); //????? is it correct???
-    
-  /*##-4- Disable the NVIC for DMA ###########################################*/
-//  HAL_NVIC_DisableIRQ(DMA2_Channel3_IRQn);
 }
 
 
