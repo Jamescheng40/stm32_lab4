@@ -177,7 +177,7 @@ int main(void)
 	// ===========Config the GPIO for external interupt==============
 	//EXTILine14_Config();
 	
-	TIM3_IT_CC4_Config();     
+//	TIM3_IT_CC4_Config();     
 	
 	//configure PWM output
 	TIM4_PWM_Config();
@@ -188,13 +188,32 @@ int main(void)
   while (1)
   {
 		
+		if(0.02442*ADC1ConvertedValue >= setPoint){
+						TIM4_CCR1_Val = (0.02442*ADC1ConvertedValue - setPoint)/0.05 + 250;
+				}else{
+					TIM4_CCR1_Val =  0;
+				
+				}
 			if(current_state == temperature_state){
-							Show_Temperature();
+				Show_Temperature();
+				
+				
+				
+				
+					
+				//	TIM4_CCR1_Val = 0;
+				
+				
+				
+				__HAL_TIM_SET_COMPARE(&Tim4_Handle, TIM_CHANNEL_1,TIM4_CCR1_Val); //set PWM compare
+				
+				
+				
 			}else{
 				
 				Show_Setpoint();
-				
-				
+			//	TIM4_CCR1_Val = 0;
+				__HAL_TIM_SET_COMPARE(&Tim4_Handle, TIM_CHANNEL_1,TIM4_CCR1_Val); //set PWM compare
 				
 				
 			}
@@ -356,52 +375,7 @@ void  TIM4_PWM_Config(void)   // timer 4, channel is is mapped to AF2 of PB6 of 
 	
 }
 
-void  TIM3_IT_CC4_Config(void)
-{
-	TIM3_Prescaler=(uint16_t)(SystemCoreClock/ 10000) - 1;  // make timer3 run at 10Khz, 10 ticks is 1ms.
-	TIM3_CCR4_Val=5000;   //it will take 1500ms. Less than 65535, OK.
-	
-  Tim3_Handle.Instance = TIM3; 
-   
- 	Tim3_Handle.Init.Period = 65535;  //does no matter, so set it to max. 
-					                  // to make _IT_CC work normally, it is better or safe to set this value to above 65,000!!!
-  Tim3_Handle.Init.Prescaler = TIM3_Prescaler;
-  Tim3_Handle.Init.ClockDivision = 0;
-  Tim3_Handle.Init.CounterMode = TIM_COUNTERMODE_UP;
-  //if(HAL_TIM_Base_Init(&Tim4_Handle) != HAL_OK)
-  //{
-  //  Error_Handler();
-  //} 
 
-	if (HAL_TIM_OC_Init(&Tim3_Handle)!=HAL_OK) { // if TIM3 has not been set, this line will call the callback function _MspInit() 
-													//in stm32XXX_hal_msp.c to set up peripheral clock and NVIC.
-													//this line has the same function as HAL_TIM_Base_Init
-				Error_Handler();
-	}
-
-
-//  config the OC
-		Tim3_OCInitStructure.OCMode=  TIM_OCMODE_TIMING; //what is TIM_OCMODE_ACTIVE??
-		Tim3_OCInitStructure.Pulse=TIM3_CCR4_Val;
-		Tim3_OCInitStructure.OCPolarity=TIM_OCPOLARITY_HIGH;
-		
-		if (HAL_TIM_OC_ConfigChannel(&Tim3_Handle, &Tim3_OCInitStructure, TIM_CHANNEL_4) !=HAL_OK) {
-			//must add this line to make OC work.!!!
-	
-	   // **********see the top part of the hal_tim.c**********
-			//HAL_TIM_OC_Init and HAL_TIM_OC_ConfigChannel: to use the Timer to generate an 
-     //         Output Compare signal. 
-			//similar to PWM mode and Onepulse mode!!!
-	
-				Error_Handler();
-		}
-						
-	 	if (HAL_TIM_OC_Start_IT(&Tim3_Handle, TIM_CHANNEL_4)!=HAL_OK) { //this function enable IT and enable the timer. so do not need
-				//HAL_TIM_OC_Start() any more
-						Error_Handler();
-		}
-			
-}
 
 
 
